@@ -32,9 +32,6 @@ class MakeFirewallAllowListener
         $process = new Process("sudo /sbin/iptables -t mangle -I internet 1 -m mac --mac-source {$mac} -j RETURN");
         $process->run();
 
-        $process = new Process("sudo /usr/local/bin/rmtrack.sh {$ip}");
-        $process->run();
-
         Log::info("Make firewall rule for mac {$mac}");
 
     }

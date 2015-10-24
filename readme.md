@@ -56,7 +56,7 @@ sudo vim /etc/dhcp/dhcpd.conf
 subnet 10.0.0.0 netmask 255.0.0.0 {
 range 10.0.0.10 10.0.254.254;
 option domain-name-servers 77.88.8.88, 77.88.8.2;
-option routers 10.0.0.1;"
+option routers 10.0.0.1;
 option broadcast-address 10.255.255.255;}
 
 ```
@@ -79,11 +79,12 @@ sudo git clone https://github.com/avin/gw-sms-captive.git
 cd ./gw-sms-captive
 sudo chmod -R 777 ./storage
 curl -sS https://getcomposer.org/installer | sudo php
-php composer.phar install
+sudo php composer.phar install
 sudo php -r "copy('.env.example', '.env');"
 sudo php artisan key:generate
 sudo php artisan migrate
 sudo cp ./utils/rmtrack.sh /usr/local/bin/
+sudo chmod +x /usr/local/bin/rmtrack.sh
 sudo chown -R www-data:www-data ../gw-sms-captive
 ```
     
@@ -92,10 +93,10 @@ sudo chown -R www-data:www-data ../gw-sms-captive
 Добавить в cron
  
 ```   
-crontab -e
+sudo crontab -u www-data -e
 ```
 ```
-* * * * * www-data php /var/www/apps/gw-sms-captive/artisan schedule:run >> /dev/null 2>&1
+* * * * * php /var/www/apps/gw-sms-captive/artisan schedule:run >> /dev/null 2>&1
 ```
         
     
@@ -146,6 +147,7 @@ sudo vim /etc/sudoers
 ```
 # Добавить в конец
 www-data ALL=(ALL) NOPASSWD: /sbin/iptables
+www-data ALL=(ALL) NOPASSWD: /usr/bin/awk
 www-data ALL=(ALL) NOPASSWD: /usr/local/bin/rmtrack.sh
 # записать и выйти :wq!    
 ```
@@ -164,15 +166,33 @@ sudo iptables -t mangle -N internet
 
 sudo iptables -t mangle -A PREROUTING -i eth1 -p tcp -m tcp -j internet
 sudo iptables -t mangle -A PREROUTING -i eth1 -p udp -m udp -j internet
+
 sudo iptables -t mangle -A internet -j MARK --set-mark 99
 sudo iptables -t nat -A PREROUTING -i eth1 -p tcp -m mark --mark 99 -m tcp --dport 80 -j DNAT --to-destination 10.0.0.1
 sudo iptables -t nat -A PREROUTING -i eth1 -p tcp -m mark --mark 99 -m tcp -m multiport ! --dports 80 -j DNAT --to-destination 127.0.0.1
 sudo iptables -t nat -A PREROUTING -i eth1 -p udp -m mark --mark 99 -m udp -m multiport ! --dports 53 -j DNAT --to-destination 127.0.0.1
 
+iptables -t nat -I POSTROUTING 1 -j LOG --log-prefix NETFILTER
 
 sudo /etc/init.d/iptables-persistent save 
 ```
 
+Добавить в /etc/rsyslog.conf
+
+```
+:msg, contains, "NETFILTER"       /var/log/iptables.log
+:msg, contains, "NETFILTER"     ~
+```
+
+Закоментировать строку 
+```
+$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
+```
+
+
 ### License
 
 [MIT license](http://opensource.org/licenses/MIT)
+
+awk '$0 >= "2015-11-01T10:22:26.990911-05:00" && $0 <= "2015-11-01T10:22:27.157133-05:00"' /var/log/iptables.log
+

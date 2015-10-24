@@ -16,8 +16,11 @@ Route::post('/', ['as' => 'key.verify', 'uses' => 'KeyController@verify']);
 
 Route::post('get', ['as' => 'key.getKey.process', 'uses' => 'KeyController@getKeyProcess']);
 
-//Route::get('test', function () {
-//    $res = \App\Facades\SmsRu::getBalance();
-//    dd($res);
-//    return '1';
-//});
+/**
+ * Логи
+ */
+Route::group(['prefix' => 'log'], function () {
+    Route::get('/', ['as' => 'log.index', 'uses' => 'LogController@index']);
+    Route::get('/{sessionId}', ['as' => 'log.get', 'uses' => 'LogController@get']);
+
+});

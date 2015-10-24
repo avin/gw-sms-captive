@@ -39,7 +39,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'EST',
 
     /*
     |--------------------------------------------------------------------------
@@ -153,6 +153,8 @@ return [
         Laracasts\Utilities\JavaScript\JavaScriptServiceProvider::class,
         Former\FormerServiceProvider::class,
 
+        Spatie\LittleGateKeeper\LittleGateKeeperServiceProvider::class,
+
     ],
 
     /*
@@ -203,6 +205,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'Flash' => Laracasts\Flash\Flash::class,
         'Former' => Former\Facades\Former::class,
+        'LittleGateKeeper' => Spatie\LittleGateKeeper\LittleGateKeeperFacade::class,
 
     ],
 

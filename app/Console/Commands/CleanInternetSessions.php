@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 
 use App\Repositories\InternetSession\InternetSessionRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -56,6 +57,23 @@ class CleanInternetSessions extends Command
     }
 
     /**
+     * Сохранить лог сесси по выбранной дате и ип
+     * @param $sessionId
+     * @param $ip
+     * @param $fromDate
+     * @param $toDate
+     */
+    protected function saveIptablesLog($sessionId, $ip, $fromDate, $toDate){
+        $fromDate = (new Carbon($fromDate))->toRfc3339String();
+        $toDate = (new Carbon($toDate))->toRfc3339String();
+
+        $outputFile = storage_path('iptables_logs').DIRECTORY_SEPARATOR.$sessionId.'.log';
+        $process = new Process("sudo awk '$0 >= \"{$fromDate}\" && $0 <= \"{$toDate}\"' /var/log/iptables.log | grep '$ip\\ ' > {$outputFile}");
+
+        $process->run();
+    }
+
+    /**
      * Execute the console command.
      *
      * @return mixed
@@ -67,6 +85,8 @@ class CleanInternetSessions extends Command
             $this->internetSessionRepository->deactivate($internetSession);
 
             $this->cleanFirewallRules($internetSession->ip, $internetSession->mac);
+            $this->saveIptablesLog($internetSession->id, $internetSession->ip, $internetSession->created_at, $internetSession->until);
+
             Log::info("Close session {$internetSession->id} for MAC '{$internetSession->mac}' IP '{$internetSession->ip}'");
         }
     }

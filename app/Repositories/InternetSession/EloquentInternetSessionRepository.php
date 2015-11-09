@@ -2,9 +2,11 @@
 namespace App\Repositories\InternetSession;
 
 use App\Events\SessionStart;
+use App\Models\InternetSession;
 use App\Repositories\EloquentBaseRepository;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -18,6 +20,11 @@ class EloquentInternetSessionRepository extends EloquentBaseRepository implement
     {
         parent::__construct($internetSession);
         $this->internetSession = $internetSession;
+    }
+
+    public function byDateRange($from, $to){
+        //dd($from);
+        return $this->internetSession->whereBetween('created_at', [$from, $to])->get();
     }
 
     /**

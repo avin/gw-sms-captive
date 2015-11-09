@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
 
+
+
 </head>
 <body>
 
@@ -23,10 +25,6 @@
     @yield('content')
 
 </div>
-
-{{--JS--}}
-
-<script href="{{ asset('assets/js/jquery.min.js') }}"></script>
 
 </body>
 </html>

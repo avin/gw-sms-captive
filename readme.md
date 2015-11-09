@@ -172,7 +172,7 @@ sudo iptables -t nat -A PREROUTING -i eth1 -p tcp -m mark --mark 99 -m tcp --dpo
 sudo iptables -t nat -A PREROUTING -i eth1 -p tcp -m mark --mark 99 -m tcp -m multiport ! --dports 80 -j DNAT --to-destination 127.0.0.1
 sudo iptables -t nat -A PREROUTING -i eth1 -p udp -m mark --mark 99 -m udp -m multiport ! --dports 53 -j DNAT --to-destination 127.0.0.1
 
-iptables -t nat -I POSTROUTING 1 -j LOG --log-prefix NETFILTER
+sudo iptables -t nat -I POSTROUTING 1 -j LOG --log-prefix NETFILTER
 
 sudo /etc/init.d/iptables-persistent save 
 ```

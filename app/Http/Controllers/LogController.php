@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-
-use App\Http\Requests\Key\GetKeyProcessRequest;
-use App\Http\Requests\Key\VerifyRequest;
 use App\Repositories\InternetSession\InternetSessionRepositoryInterface;
-use Laracasts\Flash\Flash;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class LogController extends Controller
 {
@@ -21,9 +19,16 @@ class LogController extends Controller
         $this->internetSessionRepository = $internetSessionRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $sessions = $this->internetSessionRepository->all();
+        if (preg_match('/([\d]{2}\/[\d]{2}\/[\d]{4}\ [\d]{2}:[\d]{2})\ -\ ([\d]{2}\/[\d]{2}\/[\d]{4}\ [\d]{2}:[\d]{2})/', $request->daterange, $matches)){
+            $from = new Carbon($matches[1]);
+            $to = new Carbon($matches[2]);
+            $sessions = $this->internetSessionRepository->byDateRange($from, $to);
+        } else {
+            $sessions = $this->internetSessionRepository->all();
+        }
+
         return view('front.log.index', compact('sessions'));
     }
 
